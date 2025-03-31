@@ -1,1 +1,52 @@
-<h1>Hello, world!</h1>
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="./frontend/styles.css">
+        <title>Gobble Coin</title>
+    </head>
+    <body>
+        <h1 class="greeting-header">Toss a coin to your goblin!</h1>
+        <div class="coins-container">
+            <p class="coins-text">Coins collected:</p>
+            <p class="coins-text coin-amount">0</p>
+        </div>
+        <div class="actions-container">
+            <button onclick="steal()">Steal</button>
+            <button onclick="toss()">Toss</button>
+            <button onclick="log()">Treasury</button>
+            <button onclick="kick()">Kick</button>
+        </div>
+
+        <script>
+            const coinItem = {
+                key: 'coin_key',
+                amount: null
+            };
+            coinItem.amount = localStorage.getItem(coinItem.key) || 0;
+
+            const coinCounter = document.querySelector('.coin-amount');
+            coinCounter.innerText = coinItem.amount;
+
+            function toss() {
+                coinItem.amount++;
+                coinCounter.innerText = coinItem.amount;
+                localStorage.setItem(coinItem.key, coinItem.amount.toString());
+            }
+
+            function steal() {
+                coinItem.amount--;
+                coinCounter.innerText = coinItem.amount;
+                localStorage.setItem(coinItem.key, coinItem.amount.toString());
+            }
+
+            function log() {
+                console.log(coinItem.amount);
+            }
+
+            function kick() {
+                alert('Get kicked you scumbag');
+                close();
+            }
+        </script>
+    </body>
+</html>

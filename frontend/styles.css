@@ -1,0 +1,29 @@
+p {
+    margin: 0;
+}
+
+.greeting-header {
+    margin: 0;
+    text-align: center;
+}
+
+.coins-container {
+    display: grid;
+    grid-template-rows: 1fr 2fr;
+    margin: 20px 10px;
+}
+
+.actions-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 20px 10px;
+}
+
+.coins-text {
+    text-align: center;
+}
+
+.coin-amount {
+    font-size: 32pt;
+}
