@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="stylesheet" href="../frontend/styles.css">
+        <link rel="stylesheet" href="./frontend/styles.css">
         <title>Gobble Coin</title>
     </head>
     <body>
@@ -13,7 +13,7 @@
             </div>
             <div class="dice-screen">
                 <p class="dice-title">Dice number is:</p>
-                 <img src="../public/dice-1.svg" class="dice-image">
+                 <img src="./public/dice-1.svg" class="dice-image">
             </div>
             <div class="player-screen">
                 <p class="player-title">Player score</p>
@@ -104,22 +104,22 @@
             function displayDice(diceNumber) {
                 switch(diceNumber) {
                     case 1:
-                        diceImage.src = "../public/dice-1.svg";
+                        diceImage.src = "./public/dice-1.svg";
                         break;
                     case 2:
-                        diceImage.src = "../public/dice-2.svg";
+                        diceImage.src = "./public/dice-2.svg";
                         break;
                     case 3:
-                        diceImage.src = "../public/dice-3.svg";
+                        diceImage.src = "./public/dice-3.svg";
                         break;
                     case 4:
-                        diceImage.src = "../public/dice-4.svg";
+                        diceImage.src = "./public/dice-4.svg";
                         break;
                     case 5:
-                        diceImage.src = "../public/dice-5.svg";
+                        diceImage.src = "./public/dice-5.svg";
                         break;
                     case 6:
-                        diceImage.src = "../public/dice-6.svg";
+                        diceImage.src = "./public/dice-6.svg";
                         break;
                     default:
                         diceImage.src = ""
