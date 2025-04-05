@@ -1,51 +1,129 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="stylesheet" href="./frontend/styles.css">
+        <link rel="stylesheet" href="../frontend/styles.css">
         <title>Gobble Coin</title>
     </head>
     <body>
         <h1 class="greeting-header">Toss a coin to your goblin!</h1>
-        <div class="coins-container">
-            <p class="coins-text">Coins collected:</p>
-            <p class="coins-text coin-amount">0</p>
+        <div class="game-screen">
+            <div class="goblin-screen">
+                <p class="goblin-title">Goblin score</p>
+                <p class="score goblin">0</p>
+            </div>
+            <div class="dice-screen">
+                <p class="dice-title">Dice number is:</p>
+                 <img src="../public/dice-1.svg" class="dice-image">
+            </div>
+            <div class="player-screen">
+                <p class="player-title">Player score</p>
+                <p class="score player">0</p>
+            </div>
         </div>
         <div class="actions-container">
-            <button onclick="steal()">Steal</button>
-            <button onclick="toss()">Toss</button>
-            <button onclick="log()">Treasury</button>
-            <button onclick="kick()">Kick</button>
+            <button onclick="roll()">Roll</button>
+            <button onclick="hold()">Hold</button>
+            <button>Steal</button>
+            <button>Quit</button>
         </div>
 
         <script>
-            const coinItem = {
-                key: 'coin_key',
-                amount: null
+            const MIN_DICE_VALUE = 1.0;
+            const MAX_DICE_VALUE = 6.0;
+            // const playerDice = document.querySelector('.dice-value');
+            const playerScoreElement = document.querySelector('.player');
+            const scoreBoard = {
+                player: document.querySelector('.player'),
+                goblin: document.querySelector('.goblin')
             };
-            coinItem.amount = localStorage.getItem(coinItem.key) || 0;
+            const diceImage = document.querySelector('.dice-image');
 
-            const coinCounter = document.querySelector('.coin-amount');
-            coinCounter.innerText = coinItem.amount;
-
-            function toss() {
-                coinItem.amount++;
-                coinCounter.innerText = coinItem.amount;
-                localStorage.setItem(coinItem.key, coinItem.amount.toString());
+            let diceValue = 1;
+            const gameState = {
+                playerScore: 0,
+                goblinScore: 0,
+                humanTurn: true
             }
 
-            function steal() {
-                coinItem.amount--;
-                coinCounter.innerText = coinItem.amount;
-                localStorage.setItem(coinItem.key, coinItem.amount.toString());
+            function roll() {
+                const timeThreshold = 2000;
+                const deltaTime = 200;
+                let timeElapsed = 0;
+
+                let rollIntervalID = setInterval(() => {
+                    if (timeElapsed >= timeThreshold) {
+                        clearInterval(rollIntervalID);
+                        evaluateDice(diceValue);
+                    } else {
+                        diceValue = generateDiceValue();
+                        updateDiceGraphic(diceValue);
+                        timeElapsed += deltaTime;
+                    }
+                }, deltaTime);
             }
 
-            function log() {
-                console.log(coinItem.amount);
+            function generateDiceValue() {
+                let diceValue = Math.floor(Math.random() * (MAX_DICE_VALUE - MIN_DICE_VALUE + 1) + MIN_DICE_VALUE);
+                return diceValue;
             }
 
-            function kick() {
-                alert('Get kicked you scumbag');
-                close();
+            function updateDiceGraphic(diceValue) {
+                displayDice(diceValue);
+                shakeDice();
+            }
+
+            function shakeDice() {
+                diceImage.classList.add('dice-image_rotated');
+                setTimeout(() => {
+                    diceImage.classList.remove('dice-image_rotated');
+                }, 30);
+            }
+
+            function evaluateDice(diceValue) {
+                if (diceValue == 1) {
+                    // alert("Changine turn!");
+                    gameState.humanTurn = !gameState.humanTurn;
+                    console.log(gameState.humanTurn);
+                } else {
+                    updateScore(diceValue);
+                }
+            }
+
+            function updateScore(diceValue) {
+                if (gameState.humanTurn) {
+                    // playerScoreElement += diceValue;
+                    // playerScoreElement.innerText = playerScoreElement;
+                    gameState.playerScore += diceValue;
+                    scoreBoard.player.innerText = gameState.playerScore;
+                } else {
+                    gameState.goblinScore += diceValue;
+                    scoreBoard.goblin.innerText = gameState.playerScore;
+                }
+            }
+
+            function displayDice(diceNumber) {
+                switch(diceNumber) {
+                    case 1:
+                        diceImage.src = "../public/dice-1.svg";
+                        break;
+                    case 2:
+                        diceImage.src = "../public/dice-2.svg";
+                        break;
+                    case 3:
+                        diceImage.src = "../public/dice-3.svg";
+                        break;
+                    case 4:
+                        diceImage.src = "../public/dice-4.svg";
+                        break;
+                    case 5:
+                        diceImage.src = "../public/dice-5.svg";
+                        break;
+                    case 6:
+                        diceImage.src = "../public/dice-6.svg";
+                        break;
+                    default:
+                        diceImage.src = ""
+                }
             }
         </script>
     </body>
