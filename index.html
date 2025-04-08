@@ -21,9 +21,9 @@
             </div>
         </div>
         <div class="actions-container">
-            <button class="roll-button" onclick="roll()">Roll</button>
+            <button class="roll-button" onclick="roll(evaluateHuman)">Roll</button>
             <button class="hold-button">Hold</button>
-            <!-- <button>Steal</button> -->
+            <button class="run-goblin" onclick="runGoblin()">Goblin</button>
             <!-- <button>Quit</button> -->
         </div>
 
@@ -49,17 +49,19 @@
                 humanTurn: true
             }
 
-            function roll() {
+            function roll(evaluateMethod) {
                 const timeThreshold = 2000;
                 const deltaTime = 200;
                 let timeElapsed = 0;
 
-                disableButtons(true);
-
                 let rollIntervalID = setInterval(() => {
+                    disableButtons(true);
+                    
                     if (timeElapsed >= timeThreshold) {
                         clearInterval(rollIntervalID);
-                        evaluateDice(diceValue);
+                        // evaluateDice(diceValue);
+                        // evaluateGoblin(diceValue);
+                        evaluateMethod(diceValue);
                         disableButtons(false);
                     } else {
                         diceValue = generateDiceValue();
@@ -86,9 +88,10 @@
                 }, 30);
             }
 
-            function evaluateDice(diceValue) {
-                if (diceValue == 1) {
+            function evaluateHuman(diceValue) {
+                if (diceValue === 1) {
                     gameController.humanTurn = !gameController.humanTurn;
+                    runGoblin();
                     d_showTurn();
                 } else {
                     updateScore(diceValue);
@@ -135,6 +138,20 @@
             function disableButtons(isDisabled) {
                 for (const [id, button] of Object.entries(actionButtonsContainer)) {
                     button.disabled = isDisabled;
+                }
+            }
+
+            function runGoblin() {
+                roll(evaluateGoblin);
+            }
+
+            function evaluateGoblin(diceValue) {
+                if (diceValue === 1) {
+                    gameController.humanTurn = !gameController.humanTurn;
+                    d_showTurn();
+                } else {
+                    updateScore(diceValue);
+                    roll(evaluateGoblin);
                 }
             }
 
