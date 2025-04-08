@@ -30,18 +30,24 @@
         <script>
             const MIN_DICE_VALUE = 1.0;
             const MAX_DICE_VALUE = 6.0;
-            // const playerDice = document.querySelector('.dice-value');
+
             const playerScoreElement = document.querySelector('.player');
-            const scoreBoard = {
-                player: document.querySelector('.player'),
+            const scoreBoardView = {
+                human: document.querySelector('.player'),
                 goblin: document.querySelector('.goblin')
             };
             const diceImage = document.querySelector('.dice-image');
 
             let diceValue = 1;
-            const gameState = {
-                playerScore: 0,
-                goblinScore: 0,
+            // const gameState = {
+            //     playerScore: 0,
+            //     goblinScore: 0,
+            //     humanTurn: true
+            // }
+
+            const gameController = {
+                scoreBoard: { human: 0, goblin: 0 },
+                diceRolling: false,
                 humanTurn: true
             }
 
@@ -49,6 +55,8 @@
                 const timeThreshold = 2000;
                 const deltaTime = 200;
                 let timeElapsed = 0;
+
+                d_showTurn();
 
                 let rollIntervalID = setInterval(() => {
                     if (timeElapsed >= timeThreshold) {
@@ -81,23 +89,26 @@
 
             function evaluateDice(diceValue) {
                 if (diceValue == 1) {
-                    // alert("Changine turn!");
-                    gameState.humanTurn = !gameState.humanTurn;
-                    console.log(gameState.humanTurn);
+                    // gameState.humanTurn = !gameState.humanTurn;
+                    // console.log(gameState.humanTurn);
+                    gameController.humanTurn = !gameController.humanTurn;
                 } else {
                     updateScore(diceValue);
                 }
+
+                d_printScores();
             }
 
             function updateScore(diceValue) {
-                if (gameState.humanTurn) {
-                    // playerScoreElement += diceValue;
-                    // playerScoreElement.innerText = playerScoreElement;
-                    gameState.playerScore += diceValue;
-                    scoreBoard.player.innerText = gameState.playerScore;
+                if (gameController.humanTurn) {
+                    // gameState.playerScore += diceValue;
+                    // scoreBoardView.player.innerText = gameState.playerScore;
+                    gameController.scoreBoard.human += diceValue;
+                    scoreBoardView.human.innerText = gameController.scoreBoard.human;
                 } else {
-                    gameState.goblinScore += diceValue;
-                    scoreBoard.goblin.innerText = gameState.goblinScore;
+                    // gameState.goblinScore += diceValue;
+                    gameController.scoreBoard.goblin += diceValue;
+                    scoreBoardView.goblin.innerText = gameController.scoreBoard.goblin;
                 }
             }
 
@@ -124,6 +135,20 @@
                     default:
                         diceImage.src = ""
                 }
+            }
+
+            function d_printScores() {
+                console.log(`Human: ${gameController.scoreBoard.human} | Goblin: ${gameController.scoreBoard.goblin}`);
+            }
+
+            function d_showTurn() {
+                if (gameController.humanTurn) {
+                    var playerName = "Human";
+                } else {
+                    playerName = "Goblin";
+                }
+
+                console.log(`${playerName}'s turn!`);
             }
         </script>
     </body>
