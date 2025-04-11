@@ -23,14 +23,14 @@
         <div class="actions-container">
             <button class="roll-button" onclick="roll(evaluateHuman)">Roll</button>
             <button class="hold-button" onclick="runGoblin()">Hold</button>
-            <!-- <button class="run-goblin">Goblin</button> -->
+            <button class="restart-button" hidden="true" onclick="restart()">Restart</button>
             <!-- <button>Quit</button> -->
         </div>
 
         <script>
             const MIN_DICE_VALUE = 1.0;
             const MAX_DICE_VALUE = 6.0;
-            const WIN_SCORE = 100;
+            const WIN_SCORE = 10;
 
             const diceImage = document.querySelector('.dice-image');
             let scoreBoardView = {
@@ -41,6 +41,7 @@
                 roll: document.querySelector('.roll-button'),
                 hold: document.querySelector('.hold-button')
             }
+            const restartButton = document.querySelector('.restart-button');
 
             let diceValue = 1;
             let goblinScoreStreak = 0;
@@ -98,7 +99,7 @@
                 }
 
                 if (gameController.scoreBoard.human >= WIN_SCORE) {
-                    alert('Human won!');
+                    gameOver('Human');
                     return;
                 }
 
@@ -141,18 +142,13 @@
             }
 
             function disableButtons(isDisabled) {
-                if (!gameController.humanTurn) {
-                    console.log('ignored');
-                    return;
-                }
-
+                console.log(isDisabled);
                 for (const [id, button] of Object.entries(actionButtonsContainer)) {
                     button.disabled = isDisabled;
                 }
             }
 
             function runGoblin() {
-                disableButtons(true);
                 gameController.humanTurn = false;
                 roll(evaluateGoblin);
             }
@@ -167,7 +163,7 @@
                     updateScore(diceValue);
 
                     if (gameController.scoreBoard.goblin >= WIN_SCORE) {
-                        console.log('Goblin won!');
+                        gameOver('Goblin');
                         return;
                     }
 
@@ -179,6 +175,28 @@
                         roll(evaluateGoblin);
                     }
                 }
+            }
+
+            function gameOver(winnerName) {
+                console.log(`${winnerName} won!`);
+                restartButton.hidden = false;
+            }
+
+            function clearScoreBoard() {
+                scoreBoardView.human.innerText = 0;
+                scoreBoardView.goblin.innerText = 0;
+            }           
+
+            function restart() {
+                displayDice(1);
+                // disableButtons(false);
+                clearScoreBoard();
+
+                gameController.diceRolling = false;
+                gameController.humanTurn = true;
+                gameController.scoreBoard.human = 0;
+                gameController.scoreBoard.goblin = 0;
+                goblinScoreStreak = 0;
             }
 
             function d_printScores() {
