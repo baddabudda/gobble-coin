@@ -43,6 +43,8 @@
                 humanTurn: true
             };
 
+            let gameOver = false;
+
             function roll() {
                 const timeThreshold = 2000;
                 const deltaTime = 200;
@@ -69,6 +71,10 @@
                 } else {
                     updateScore(diceValue);
                     checkWinner();
+                    
+                    if (!gameController.humanTurn) {
+                        pickAction();
+                    }
                 }
             }
 
@@ -91,23 +97,26 @@
                     renderScore('human', gameController.scoreBoard.human);
                 } else {
                     gameController.scoreBoard.goblin += diceValue;
-                    renderScore('goblin', gameController.scoreBoard.goblin);
-
                     goblinScoreStreak += diceValue;
-
-                    pickAction();
+                    renderScore('goblin', gameController.scoreBoard.goblin);
                 }
             }
 
             function checkWinner() {
                 if (gameController.scoreBoard.human >= WIN_SCORE) {
                     displayWinner('Human');
+                    gameOver = true;
                 } else if (gameController.scoreBoard.goblin >= WIN_SCORE) {
                     displayWinner('Goblin');
+                    gameOver = true;
                 }
             }
 
             function pickAction() {
+                if (gameOver) {
+                    return;
+                }
+
                 if (goblinScoreStreak <= 20) {
                     roll();
                 } else {
@@ -116,14 +125,15 @@
             }
 
             function restart() {
-                displayDice(1);
-                clearScoreBoard();
-
                 gameController.diceRolling = false;
                 gameController.humanTurn = true;
                 gameController.scoreBoard.human = 0;
                 gameController.scoreBoard.goblin = 0;
                 goblinScoreStreak = 0;
+
+                displayDice(1);
+                clearScoreBoard();
+                enableActionButtons();
             }
         </script>
     </body>
