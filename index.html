@@ -27,21 +27,12 @@
             <!-- <button>Quit</button> -->
         </div>
 
-        <script>
-            const MIN_DICE_VALUE = 1.0;
-            const MAX_DICE_VALUE = 6.0;
-            const WIN_SCORE = 30;
+        <script src="./scripts/dice.js"></script>
+        <script src="./scripts/debug.js"></script>
+        <script src="./scripts/view.js"></script>
 
-            const diceImage = document.querySelector('.dice-image');
-            let scoreBoardView = {
-                human: document.querySelector('.player'),
-                goblin: document.querySelector('.goblin')
-            };
-            let actionButtonsContainer = {
-                roll: document.querySelector('.roll-button'),
-                hold: document.querySelector('.hold-button')
-            }
-            const restartButton = document.querySelector('.restart-button');
+        <script>
+            const WIN_SCORE = 30;
 
             let diceValue = 1;
             let goblinScoreStreak = 0;
@@ -88,158 +79,41 @@
                 if (!gameController.humanTurn) {
                     disableActionButtons();
                     goblinScoreStreak = 0;
-                    runGoblin();
+                    pickAction();
                 } else {
                     enableActionButtons();
                 }
             }
 
-            function generateDiceValue() {
-                let diceValue = Math.floor(Math.random() * (MAX_DICE_VALUE - MIN_DICE_VALUE + 1) + MIN_DICE_VALUE);
-                return diceValue;
-            }
-
-            function updateDiceGraphic(diceValue) {
-                displayDice(diceValue);
-                shakeDice();
-            }
-
-            function shakeDice() {
-                diceImage.classList.add('dice-image_rotated');
-                setTimeout(() => {
-                    diceImage.classList.remove('dice-image_rotated');
-                }, 30);
-            }
-
-            function countScoreHuman(diceValue) {
-                if (diceValue === 1) {
-                    gameController.humanTurn = !gameController.humanTurn;
-                    runGoblin();
-                    d_showTurn();
-                } else {
-                    updateScore(diceValue);
-                }
-
-                if (gameController.scoreBoard.human >= WIN_SCORE) {
-                    gameOver('Human');
-                    return;
-                }
-
-                d_printScores();
-            }
-
             function updateScore(diceValue) {
                 if (gameController.humanTurn) {
                     gameController.scoreBoard.human += diceValue;
-                    scoreBoardView.human.innerText = gameController.scoreBoard.human;
+                    renderScore('human', gameController.scoreBoard.human);
                 } else {
                     gameController.scoreBoard.goblin += diceValue;
-                    scoreBoardView.goblin.innerText = gameController.scoreBoard.goblin;
+                    renderScore('goblin', gameController.scoreBoard.goblin);
 
                     goblinScoreStreak += diceValue;
-                    console.log(`${goblinScoreStreak}`);
 
-                    if (goblinScoreStreak <= 20) {
-                        runGoblin();
-                    } else {
-                        changeTurn();
-                    }
+                    pickAction();
                 }
             }
 
             function checkWinner() {
                 if (gameController.scoreBoard.human >= WIN_SCORE) {
-                    gameOver('Human');
+                    displayWinner('Human');
                 } else if (gameController.scoreBoard.goblin >= WIN_SCORE) {
-                    gameOver('Goblin');
+                    displayWinner('Goblin');
                 }
             }
 
-            function displayDice(diceNumber) {
-                switch(diceNumber) {
-                    case 1:
-                        diceImage.src = "./public/dice-1.svg";
-                        break;
-                    case 2:
-                        diceImage.src = "./public/dice-2.svg";
-                        break;
-                    case 3:
-                        diceImage.src = "./public/dice-3.svg";
-                        break;
-                    case 4:
-                        diceImage.src = "./public/dice-4.svg";
-                        break;
-                    case 5:
-                        diceImage.src = "./public/dice-5.svg";
-                        break;
-                    case 6:
-                        diceImage.src = "./public/dice-6.svg";
-                        break;
-                    default:
-                        diceImage.src = ""
+            function pickAction() {
+                if (goblinScoreStreak <= 20) {
+                    roll();
+                } else {
+                    changeTurn();
                 }
             }
-
-            function disableActionButtons() {
-                for (const [id, button] of Object.entries(actionButtonsContainer)) {
-                    button.disabled = true;
-                }
-            }
-
-            function enableActionButtons() {
-                if (!gameController.humanTurn) {
-                    return
-                }
-
-                for (const [id, button] of Object.entries(actionButtonsContainer)) {
-                    button.disabled = false;
-                }
-            }
-
-            // function disableButtons(isDisabled) {
-            //     // console.log(isDisabled);
-            //     for (const [id, button] of Object.entries(actionButtonsContainer)) {
-            //         button.disabled = isDisabled;
-            //     }
-            // }
-
-            function runGoblin() {
-                roll();
-            }
-
-            // function countScoreGoblin(diceValue) {
-            //     if (diceValue === 1) {
-            //         gameController.humanTurn = !gameController.humanTurn;
-            //         goblinScoreStreak = 0;
-            //         d_showTurn();
-            //     } else {
-            //         goblinScoreStreak += diceValue
-            //         updateScore(diceValue);
-
-            //         if (gameController.scoreBoard.goblin >= WIN_SCORE) {
-            //             gameOver('Goblin');
-            //             return;
-            //         }
-
-            //         if (goblinScoreStreak > 20) {
-            //             gameController.humanTurn = true;
-            //             goblinScoreStreak = 0;
-            //             return;
-            //         } else {
-            //             roll(countScoreGoblin);
-            //         }
-            //     }
-            // }
-
-            function gameOver(winnerName) {
-                console.log(`${winnerName} won!`);
-                restartButton.hidden = false;
-            }
-
-            function clearScoreBoard() {
-                scoreBoardView.human.innerText = 0;
-                scoreBoardView.goblin.innerText = 0;
-            }           
 
             function restart() {
                 displayDice(1);
@@ -250,20 +124,6 @@
                 gameController.scoreBoard.human = 0;
                 gameController.scoreBoard.goblin = 0;
                 goblinScoreStreak = 0;
-            }
-
-            function d_printScores() {
-                console.log(`Human: ${gameController.scoreBoard.human} | Goblin: ${gameController.scoreBoard.goblin}`);
-            }
-
-            function d_showTurn() {
-                if (gameController.humanTurn) {
-                    var playerName = "Human";
-                } else {
-                    playerName = "Goblin";
-                }
-
-                console.log(`${playerName}'s turn!`);
             }
         </script>
     </body>
