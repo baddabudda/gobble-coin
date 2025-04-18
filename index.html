@@ -21,29 +21,27 @@
             </div>
         </div>
         <div class="actions-container">
-            <button onclick="roll()">Roll</button>
-            <button>Hold</button>
-            <button>Steal</button>
-            <button>Quit</button>
+            <button class="roll-button" onclick="roll()">Roll</button>
+            <button class="hold-button" onclick="changeTurn()">Hold</button>
+            <button class="restart-button" hidden="true" onclick="restart()">Restart</button>
+            <!-- <button>Quit</button> -->
         </div>
 
+        <script src="./scripts/dice.js"></script>
+        <script src="./scripts/debug.js"></script>
+        <script src="./scripts/view.js"></script>
+
         <script>
-            const MIN_DICE_VALUE = 1.0;
-            const MAX_DICE_VALUE = 6.0;
-            // const playerDice = document.querySelector('.dice-value');
-            const playerScoreElement = document.querySelector('.player');
-            const scoreBoard = {
-                player: document.querySelector('.player'),
-                goblin: document.querySelector('.goblin')
-            };
-            const diceImage = document.querySelector('.dice-image');
+            const WIN_SCORE = 30;
 
             let diceValue = 1;
-            const gameState = {
-                playerScore: 0,
-                goblinScore: 0,
+            let goblinScoreStreak = 0;
+
+            let gameController = {
+                scoreBoard: { human: 0, goblin: 0 },
+                diceRolling: false,
                 humanTurn: true
-            }
+            };
 
             function roll() {
                 const timeThreshold = 2000;
@@ -51,9 +49,12 @@
                 let timeElapsed = 0;
 
                 let rollIntervalID = setInterval(() => {
+                    disableActionButtons();
+                    
                     if (timeElapsed >= timeThreshold) {
                         clearInterval(rollIntervalID);
-                        evaluateDice(diceValue);
+                        referee(diceValue);
+                        enableActionButtons();
                     } else {
                         diceValue = generateDiceValue();
                         updateDiceGraphic(diceValue);
@@ -62,68 +63,67 @@
                 }, deltaTime);
             }
 
-            function generateDiceValue() {
-                let diceValue = Math.floor(Math.random() * (MAX_DICE_VALUE - MIN_DICE_VALUE + 1) + MIN_DICE_VALUE);
-                return diceValue;
-            }
-
-            function updateDiceGraphic(diceValue) {
-                displayDice(diceValue);
-                shakeDice();
-            }
-
-            function shakeDice() {
-                diceImage.classList.add('dice-image_rotated');
-                setTimeout(() => {
-                    diceImage.classList.remove('dice-image_rotated');
-                }, 30);
-            }
-
-            function evaluateDice(diceValue) {
-                if (diceValue == 1) {
-                    // alert("Changine turn!");
-                    gameState.humanTurn = !gameState.humanTurn;
-                    console.log(gameState.humanTurn);
+            function referee(diceValue) {
+                if (diceValue === 1) {
+                    changeTurn();
                 } else {
                     updateScore(diceValue);
+                    checkWinner();
+                }
+            }
+
+            function changeTurn() {
+                gameController.humanTurn = !gameController.humanTurn;
+                d_showTurn();
+
+                if (!gameController.humanTurn) {
+                    disableActionButtons();
+                    goblinScoreStreak = 0;
+                    pickAction();
+                } else {
+                    enableActionButtons();
                 }
             }
 
             function updateScore(diceValue) {
-                if (gameState.humanTurn) {
-                    // playerScoreElement += diceValue;
-                    // playerScoreElement.innerText = playerScoreElement;
-                    gameState.playerScore += diceValue;
-                    scoreBoard.player.innerText = gameState.playerScore;
+                if (gameController.humanTurn) {
+                    gameController.scoreBoard.human += diceValue;
+                    renderScore('human', gameController.scoreBoard.human);
                 } else {
-                    gameState.goblinScore += diceValue;
-                    scoreBoard.goblin.innerText = gameState.goblinScore;
+                    gameController.scoreBoard.goblin += diceValue;
+                    renderScore('goblin', gameController.scoreBoard.goblin);
+
+                    goblinScoreStreak += diceValue;
+
+                    pickAction();
                 }
             }
 
-            function displayDice(diceNumber) {
-                switch(diceNumber) {
-                    case 1:
-                        diceImage.src = "./public/dice-1.svg";
-                        break;
-                    case 2:
-                        diceImage.src = "./public/dice-2.svg";
-                        break;
-                    case 3:
-                        diceImage.src = "./public/dice-3.svg";
-                        break;
-                    case 4:
-                        diceImage.src = "./public/dice-4.svg";
-                        break;
-                    case 5:
-                        diceImage.src = "./public/dice-5.svg";
-                        break;
-                    case 6:
-                        diceImage.src = "./public/dice-6.svg";
-                        break;
-                    default:
-                        diceImage.src = ""
+            function checkWinner() {
+                if (gameController.scoreBoard.human >= WIN_SCORE) {
+                    displayWinner('Human');
+                } else if (gameController.scoreBoard.goblin >= WIN_SCORE) {
+                    displayWinner('Goblin');
                 }
+            }
+
+            function pickAction() {
+                if (goblinScoreStreak <= 20) {
+                    roll();
+                } else {
+                    changeTurn();
+                }
+            }
+
+            function restart() {
+                displayDice(1);
+                clearScoreBoard();
+
+                gameController.diceRolling = false;
+                gameController.humanTurn = true;
+                gameController.scoreBoard.human = 0;
+                gameController.scoreBoard.goblin = 0;
+                goblinScoreStreak = 0;
             }
         </script>
     </body>
